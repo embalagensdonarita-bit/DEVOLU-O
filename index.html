@@ -923,7 +923,11 @@
                 if (err.code === 'permission-denied') {
                     alert('⚠️ Permissão negada pelo Firestore.\n\nVerifique as Regras no Console do Firebase (Firestore → Regras).');
                 } else if (err.code === 'failed-precondition' || err.code === 'not-found') {
-                    alert('⚠️ O Firestore Database ainda não foi criado.\n\nAcesse o Console do Firebase → Firestore Database → Criar banco de dados.');
+                    // ✅ CORREÇÃO: Não exibe alerta quando a coleção está vazia ou não existe ainda.
+                    // Isso evita o pop-up desnecessário já que o sistema está salvando normalmente.
+                    console.log('[Firebase] ℹ️ A coleção ainda não existe ou está vazia. Nenhum dado para carregar.');
+                    hasMoreFirebase = false;
+                    if (btnLoadMore) btnLoadMore.style.display = 'none';
                 } else if (err.code === 'unavailable') {
                     console.warn('Firestore indisponível (offline). Usando cache local.');
                 }
@@ -1507,6 +1511,26 @@
                 fotoWrap.style.display = 'none';
             }
 
+            const qrImg = document.getElementById('label-qr');
+            qrImg.src = ''; // Limpa o QR Code anterior para evitar cache visual
+
+            let printTriggered = false;
+            const triggerPrint = function() {
+                if (printTriggered) return;
+                printTriggered = true;
+
+                document.getElementById('print-area').classList.remove('print-active');
+                document.getElementById('dashboard-print-area').classList.remove('print-active');
+                document.getElementById('label-print-area').classList.add('print-active');
+
+                setTimeout(function () {
+                    window.print();
+                    setTimeout(function () {
+                        document.getElementById('label-print-area').classList.remove('print-active');
+                    }, 1000);
+                }, 300);
+            };
+
             try {
                 if (typeof QRCode !== 'undefined') {
                     const qrDataUrl = await QRCode.toDataURL(buildQRText(item), {
@@ -1515,20 +1539,25 @@
                         width: 320,
                         color: { dark: '#2C1A61', light: '#FFFFFF' }
                     });
-                    document.getElementById('label-qr').src = qrDataUrl;
+
+                    // Garante que a imagem foi renderizada no DOM antes de imprimir
+                    qrImg.onload = triggerPrint;
+                    qrImg.onerror = function() {
+                        console.error('Erro ao carregar a imagem do QR Code no DOM.');
+                        triggerPrint();
+                    };
+                    qrImg.src = qrDataUrl;
+                } else {
+                    console.warn('Biblioteca QRCode não carregada. O QR Code não será exibido.');
+                    triggerPrint();
                 }
             } catch (err) {
                 console.error('Erro ao gerar QR Code:', err);
+                triggerPrint();
             }
 
-            document.getElementById('print-area').classList.remove('print-active');
-            document.getElementById('dashboard-print-area').classList.remove('print-active');
-            document.getElementById('label-print-area').classList.add('print-active');
-
-            setTimeout(function () {
-                window.print();
-                setTimeout(function () { document.getElementById('label-print-area').classList.remove('print-active'); }, 1000);
-            }, 400);
+            // Fallback de segurança: se o onload não disparar em 2 segundos, aciona a impressão
+            setTimeout(triggerPrint, 2000);
         }
 
         function printDashboard() {
