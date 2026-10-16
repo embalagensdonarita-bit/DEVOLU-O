@@ -1,9 +1,11 @@
 /* =====================================================
    SERVICE WORKER - Dona Rita Embalagens PWA
+   Versão: v2 (compatível com o HTML otimizado p/ Spark)
    ===================================================== */
 
-const CACHE_NAME = 'dona-rita-v1';
-const CACHE_VERSION = 1;
+// ⚠️ Bump de versão: força os clientes a baixar o novo HTML
+const CACHE_NAME = 'dona-rita-v2';
+const CACHE_VERSION = 2;
 
 /* Arquivos essenciais para funcionar OFFLINE */
 const CORE_ASSETS = [
@@ -16,9 +18,32 @@ const CORE_ASSETS = [
     'https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js'
 ];
 
+/* Domínios que NUNCA devem ser interceptados pelo SW
+   (Firebase/Firestore/Auth/Google APIs gerenciam seu próprio cache) */
+const BYPASS_HOSTS = [
+    'firestore.googleapis.com',
+    'firebaseio.com',
+    'firebaseapp.com',
+    'identitytoolkit.googleapis.com',
+    'securetoken.googleapis.com',
+    'googleapis.com',
+    'gstatic.com',
+    'google-analytics.com',
+    'googletagmanager.com'
+];
+
+function shouldBypass(url) {
+    try {
+        const u = new URL(url);
+        return BYPASS_HOSTS.some(h => u.hostname.endsWith(h));
+    } catch (e) {
+        return false;
+    }
+}
+
 /* ============ INSTALAÇÃO ============ */
 self.addEventListener('install', (event) => {
-    console.log('[SW] Instalando...');
+    console.log('[SW] Instalando v' + CACHE_VERSION + '...');
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             // Adiciona arquivos essenciais; se algum falhar, continua mesmo assim
@@ -35,7 +60,7 @@ self.addEventListener('install', (event) => {
 
 /* ============ ATIVAÇÃO ============ */
 self.addEventListener('activate', (event) => {
-    console.log('[SW] Ativando...');
+    console.log('[SW] Ativando v' + CACHE_VERSION + '...');
     event.waitUntil(
         caches.keys().then((keys) => {
             return Promise.all(
@@ -57,15 +82,18 @@ self.addEventListener('fetch', (event) => {
     // Ignora métodos que não são GET
     if (req.method !== 'GET') return;
 
-    // Ignora requisições do tipo chrome-extension, etc.
+    // Ignora requisições não-HTTP (chrome-extension, etc.)
     if (!req.url.startsWith('http')) return;
 
-    // Estratégia: Cache First com atualização em background (Stale-While-Revalidate)
+    // ✅ Ignora Firebase / Google APIs (deixa o SDK gerenciar)
+    if (shouldBypass(req.url)) return;
+
+    // Estratégia: Stale-While-Revalidate (cache-first com atualização em background)
     event.respondWith(
         caches.match(req).then((cachedResponse) => {
             const fetchPromise = fetch(req)
                 .then((networkResponse) => {
-                    // Só cacheia respostas válidas
+                    // Cacheia apenas respostas same-origin válidas
                     if (networkResponse && networkResponse.status === 200 && networkResponse.type === 'basic') {
                         const responseClone = networkResponse.clone();
                         caches.open(CACHE_NAME).then((cache) => {
@@ -79,7 +107,6 @@ self.addEventListener('fetch', (event) => {
                     return cachedResponse;
                 });
 
-            // Retorna cache imediatamente se existir, senão espera a rede
             return cachedResponse || fetchPromise;
         })
     );
