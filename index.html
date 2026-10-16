@@ -876,10 +876,12 @@
             if (btnLoadMore) btnLoadMore.disabled = true;
 
             try {
-                let query = fbDb.collection(FB_COLLECTION)
-                    .orderBy(firebase.firestore.FieldPath.documentId(), 'desc')
-                    .limit(PAGE_SIZE);
-
+                // 🔄 CORREÇÃO CRÍTICA: Removemos o .orderBy() do Firestore.
+                // Isso evita erros de índice ("failed-precondition") que impediam os dados
+                // de carregarem em outros dispositivos (modo anônimo, etc.).
+                // A ordenação agora é feita localmente no JavaScript.
+                let query = fbDb.collection(FB_COLLECTION).limit(PAGE_SIZE);
+                
                 if (loadMore && lastDocId) {
                     query = query.startAfter(String(lastDocId));
                 }
@@ -896,7 +898,6 @@
 
                 hasMoreFirebase = docs.length === PAGE_SIZE;
 
-                // Atualiza o flag de existência da coleção
                 if (docs.length > 0) {
                     fbCollectionExists = true;
                 }
@@ -906,6 +907,11 @@
                 history.forEach(function (item) { map.set(item.id, item); });
                 docs.forEach(function (item) { map.set(item.id, item); });
                 history = Array.from(map.values());
+
+                // 🔄 Ordena o array localmente para garantir que os mais recentes apareçam primeiro na tela
+                history.sort(function (a, b) {
+                    return (b.id || 0) - (a.id || 0);
+                });
 
                 persistHistory();
                 renderHistory();
@@ -921,10 +927,8 @@
             } catch (err) {
                 console.error('[Firebase] ❌ Erro ao carregar:', err.code, err.message);
                 if (err.code === 'permission-denied') {
-                    alert('⚠️ Permissão negada pelo Firestore.\n\nVerifique as Regras no Console do Firebase (Firestore → Regras).');
+                    alert('⚠️ Permissão negada pelo Firestore.\n\nSe você está em uma aba anônima ou outro dispositivo, verifique as Regras no Console do Firebase (Firestore → Regras).\n\nPara testes, use: allow read, write: if true;');
                 } else if (err.code === 'failed-precondition' || err.code === 'not-found') {
-                    // ✅ CORREÇÃO: Não exibe alerta quando a coleção está vazia ou não existe ainda.
-                    // Isso evita o pop-up desnecessário já que o sistema está salvando normalmente.
                     console.log('[Firebase] ℹ️ A coleção ainda não existe ou está vazia. Nenhum dado para carregar.');
                     hasMoreFirebase = false;
                     if (btnLoadMore) btnLoadMore.style.display = 'none';
@@ -1189,8 +1193,9 @@
                 });
             }
 
+            // Ordena localmente por ID (timestamp) decrescente para garantir consistência
             filteredHistory = filteredHistory.slice().sort(function (a, b) {
-                return new Date(b.dataEntrada || 0) - new Date(a.dataEntrada || 0);
+                return (b.id || 0) - (a.id || 0);
             });
 
             const tbody = document.getElementById('historyTableBody');
