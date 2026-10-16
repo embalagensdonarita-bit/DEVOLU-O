@@ -725,7 +725,11 @@
 
         /* =====================================================
            ============ FIREBASE INIT ==========================
-           ===================================================== */
+           =====================================================
+           ✅ A coleção `devolucoes` é criada AUTOMATICAMENTE
+              pelo Firestore na primeira gravação de um documento.
+              Não é necessário criá-la manualmente no Console.
+        */
         const firebaseConfig = {
             apiKey: "AIzaSyDdfIhSeQFQYPO5XqTO2Em5zU8tgy9YA7E",
             authDomain: "devolucao-f3da9.firebaseapp.com",
@@ -738,6 +742,8 @@
 
         let fbDb = null;
         let fbReady = false;
+        let fbCollectionExists = false; // controla se a coleção já tem documentos
+        let fbFirstSaveDone = false;    // marca quando o primeiro save acontece nesta sessão
         const FB_COLLECTION = 'devolucoes';
         const LS_KEY = 'donaRitaDevolucoes';
         const PAGE_SIZE = 50; // registros por página para economizar leituras
@@ -757,7 +763,7 @@
                 }
                 fbDb = firebase.firestore();
                 fbReady = true;
-                console.log('%c[Firebase] ✅ Inicializado.', 'color:#27AE60;font-weight:bold');
+                console.log('%c[Firebase] ✅ Inicializado. Projeto: ' + firebaseConfig.projectId, 'color:#27AE60;font-weight:bold');
 
                 try {
                     fbDb.enablePersistence({ synchronizeTabs: true })
@@ -770,18 +776,58 @@
                             }
                         });
                 } catch (e) { /* ignore */ }
+
+                // Verifica/valida a coleção (1 leitura no máximo)
+                ensureFirestoreReady();
             } catch (e) {
                 console.error('[Firebase] ❌ Exceção na inicialização:', e);
             }
+        }
+
+        /* =====================================================
+           ============ GARANTE QUE A COLEÇÃO ESTÁ PRONTA ======
+           =====================================================
+           O Firestore cria coleções automaticamente na primeira
+           escrita. Esta função só VERIFICA se ela já tem dados,
+           para dar um feedback claro ao usuário. Custa no MÁXIMO
+           1 leitura (limit(1)) e roda apenas uma vez ao abrir o app.
+        */
+        function ensureFirestoreReady() {
+            if (!fbReady || !fbDb) return;
+
+            fbDb.collection(FB_COLLECTION).limit(1).get()
+                .then(function (snap) {
+                    fbCollectionExists = !snap.empty;
+                    if (fbCollectionExists) {
+                        console.log('%c[Firebase] ✅ Coleção "' + FB_COLLECTION + '" encontrada com dados.', 'color:#27AE60;font-weight:bold');
+                    } else {
+                        console.log('%c[Firebase] ℹ️ Coleção "' + FB_COLLECTION + '" ainda vazia. Será criada automaticamente ao salvar a primeira devolução.', 'color:#2980B9;font-weight:bold');
+                    }
+                })
+                .catch(function (err) {
+                    console.error('[Firebase] ❌ Erro ao verificar coleção:', err.code, err.message);
+                    if (err.code === 'permission-denied') {
+                        console.error('%c[Firebase] ⚠️ REGRAS BLOQUEANDO. Vá em Console → Firestore → Regras e libere leitura/escrita.', 'color:#C0392B;font-weight:bold');
+                    } else if (err.code === 'failed-precondition' || err.code === 'not-found') {
+                        console.error('%c[Firebase] ⚠️ O Firestore Database ainda NÃO FOI CRIADO. Console → Firestore Database → Criar banco de dados.', 'color:#C0392B;font-weight:bold');
+                    }
+                });
         }
 
         function fbSaveItem(item) {
             if (!fbDb || !item || item.id === undefined || item.id === null) {
                 return Promise.reject(new Error('Firebase não pronto'));
             }
+            // ⬇️ Esta gravação cria a coleção automaticamente se ela ainda não existir
             return fbDb.collection(FB_COLLECTION).doc(String(item.id)).set(item, { merge: true })
                 .then(function () {
-                    console.log('%c[Firebase] ✅ Salvo: ID ' + item.id, 'color:#27AE60');
+                    if (!fbCollectionExists && !fbFirstSaveDone) {
+                        fbFirstSaveDone = true;
+                        fbCollectionExists = true;
+                        console.log('%c[Firebase] ✅ Coleção "' + FB_COLLECTION + '" criada automaticamente com o primeiro registro!', 'color:#27AE60;font-weight:bold');
+                    } else {
+                        console.log('%c[Firebase] ✅ Salvo: ID ' + item.id, 'color:#27AE60');
+                    }
                 })
                 .catch(function (err) {
                     console.error('[Firebase] ❌ Falha ao salvar ID ' + item.id + ':', err.code, err.message);
@@ -790,11 +836,11 @@
         }
 
         /* =====================================================
-           ============ CARGA SOB DEMANDA (SUBSTITUI ONSNAPSHOT)
+           ============ CARGA SOB DEMANDA ======================
            =====================================================
-           Economia de leituras: em vez de escutar toda a coleção em tempo real
-           (custa 1 leitura por documento alterado para cada cliente conectado),
-           carregamos apenas uma página por vez, apenas quando necessário.
+           Economia de leituras: em vez de escutar toda a coleção
+           em tempo real (custa 1 leitura por doc alterado), carrega
+           apenas uma página por vez, sob demanda.
         */
         let lastDocId = null;
         let hasMoreFirebase = true;
@@ -830,6 +876,11 @@
 
                 hasMoreFirebase = docs.length === PAGE_SIZE;
 
+                // Atualiza o flag de existência da coleção
+                if (docs.length > 0) {
+                    fbCollectionExists = true;
+                }
+
                 // Mescla com cache local por ID (Firestore tem prioridade).
                 const map = new Map();
                 history.forEach(function (item) { map.set(item.id, item); });
@@ -839,11 +890,14 @@
                 persistHistory();
                 renderHistory();
                 renderDashboard();
-
                 updatePaginationUI(docs.length);
 
                 if (btnLoadMore) btnLoadMore.style.display = hasMoreFirebase ? 'inline-flex' : 'none';
                 console.log('[Firebase] Carregados ' + docs.length + ' registro(s). Total em memória: ' + history.length);
+
+                if (docs.length === 0 && !fbCollectionExists) {
+                    console.log('[Firebase] ℹ️ A coleção "' + FB_COLLECTION + '" ainda está vazia — aguardando o primeiro cadastro.');
+                }
             } catch (err) {
                 console.error('[Firebase] ❌ Erro ao carregar:', err.code, err.message);
                 if (err.code === 'permission-denied') {
@@ -863,11 +917,7 @@
         function updatePaginationUI(newDocs) {
             const info = document.getElementById('pagination-info');
             if (!info) return;
-            if (newDocs === 0 && hasMoreFirebase === false) {
-                info.textContent = history.length + ' registro(s) em memória.';
-            } else {
-                info.textContent = history.length + ' registro(s) em memória.';
-            }
+            info.textContent = history.length + ' registro(s) em memória.';
         }
 
         /* =====================================================
@@ -877,7 +927,6 @@
             try {
                 localStorage.setItem(LS_KEY, JSON.stringify(history));
             } catch (err) {
-                // Se o localStorage estourar (5-10MB), remove fotos das entradas mais antigas
                 console.warn('[Cache] localStorage cheio. Removendo fotos antigas do cache...');
                 try {
                     const stripped = history.map(function (item, idx) {
@@ -922,7 +971,7 @@
             renderDashboard();
 
             // Carrega a primeira página do Firestore (economiza leituras)
-            setTimeout(function () { loadFromFirebase(false); }, 400);
+            setTimeout(function () { loadFromFirebase(false); }, 500);
         });
 
         function switchTab(tabId, btnElement) {
@@ -955,13 +1004,11 @@
             const file = event.target.files[0];
             if (!file) return;
 
-            // Valida tipo
             if (!file.type || !file.type.startsWith('image/')) {
                 alert('Por favor, selecione um arquivo de imagem válido.');
                 event.target.value = '';
                 return;
             }
-            // Limite de segurança do arquivo original
             if (file.size > 15 * 1024 * 1024) {
                 alert('A imagem é muito grande (máx. 15MB). Escolha uma imagem menor.');
                 event.target.value = '';
@@ -972,7 +1019,6 @@
             reader.onload = function (e) {
                 const img = new Image();
                 img.onload = function () {
-                    // Compressão agressiva para caber no plano Spark
                     const maxLargura = 720;
                     let w = img.width;
                     let h = img.height;
@@ -1030,7 +1076,7 @@
 
         function saveReturn(event) {
             event.preventDefault();
-            if (isSavingReturn) return; // Previne clique duplo
+            if (isSavingReturn) return;
 
             const btn = document.getElementById('btnSubmit');
             isSavingReturn = true;
@@ -1054,16 +1100,23 @@
 
             history.push(newReturn);
             persistHistory();
-            lastDocId = String(newReturn.id); // Atualiza cursor
+            lastDocId = String(newReturn.id);
 
-            // Persiste no Firestore sem recarregar todo o conjunto
+            const wasCollectionEmpty = !fbCollectionExists;
+
             const firebasePromise = (fbReady && fbDb)
                 ? fbSaveItem(newReturn)
                 : Promise.reject(new Error('Firebase não pronto'));
 
             firebasePromise
                 .then(function () {
-                    finalizeSave('✅ Devolução registrada e salva no Firebase!');
+                    // Mensagem especial quando é a PRIMEIRA devolução (cria a coleção)
+                    if (wasCollectionEmpty) {
+                        alert('✅ Primeira devolução registrada!\n\nA coleção "' + FB_COLLECTION + '" foi criada automaticamente no Firestore.');
+                    } else {
+                        alert('✅ Devolução registrada e salva no Firebase com sucesso!');
+                    }
+                    finalizeSave();
                 })
                 .catch(function (err) {
                     let msg = 'Registro salvo no dispositivo, mas NÃO foi para o Firebase.\n\n';
@@ -1076,12 +1129,10 @@
                     }
                     alert(msg);
                     console.error('[Firebase] Falha ao salvar:', err);
-                    finalizeSave(null);
+                    finalizeSave();
                 });
 
-            function finalizeSave(successMsg) {
-                if (successMsg) alert(successMsg);
-
+            function finalizeSave() {
                 document.getElementById('returnForm').reset();
                 removePhoto();
                 const today = new Date().toISOString().split('T')[0];
@@ -1122,7 +1173,7 @@
             tbody.innerHTML = '';
 
             if (filteredHistory.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px; color: #666;">Nenhum registro encontrado para este filtro.</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px; color: #666;">Nenhum registro encontrado. Cadastre a primeira devolução na aba "➕ Nova Devolução".</td></tr>';
             } else {
                 const frag = document.createDocumentFragment();
                 filteredHistory.forEach(function (item) {
@@ -1211,7 +1262,7 @@
 
             const updated = history[itemIndex];
 
-            const done = function (msg, isError) {
+            const done = function (msg) {
                 isSavingEdit = false;
                 btn.disabled = false;
                 btn.textContent = 'Salvar Alterações';
@@ -1225,10 +1276,10 @@
                 fbSaveItem(updated)
                     .then(function () { done('✅ Alterações salvas no Firebase!'); })
                     .catch(function (err) {
-                        done('Alterações salvas no dispositivo, mas não no Firebase.\nCódigo: ' + (err.code || err.message), true);
+                        done('Alterações salvas no dispositivo, mas não no Firebase.\nCódigo: ' + (err.code || err.message));
                     });
             } else {
-                done('Alterações salvas apenas no dispositivo (Firebase não pronto).', true);
+                done('Alterações salvas apenas no dispositivo (Firebase não pronto).');
             }
         }
 
