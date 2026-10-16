@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
     <title>Dona Rita Embalagens - Devoluções</title>
 
-    <!-- ===== PWA / MOBILE META TAGS ===== -->
     <meta name="theme-color" content="#2C1A61">
     <meta name="description" content="Sistema de Controle de Devoluções - Dona Rita Embalagens">
     <meta name="mobile-web-app-capable" content="yes">
@@ -14,23 +13,20 @@
     <meta name="apple-mobile-web-app-title" content="Dona Rita">
     <meta name="format-detection" content="telephone=no">
 
-    <!-- ===== PWA ICONS ===== -->
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
     <link rel="apple-touch-icon" sizes="152x152" href="logo.png">
     <link rel="apple-touch-icon" sizes="180x180" href="logo.png">
     <link rel="apple-touch-icon" sizes="167x167" href="logo.png">
 
-    <!-- ===== PWA MANIFEST ===== -->
     <link rel="manifest" href="manifest.json">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 
-    <!-- ===== FIREBASE SDK (compat) ===== -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 
     <style>
         :root {
@@ -50,7 +46,6 @@
 
         button, .tab-btn, .btn-submit, .btn-action { touch-action: manipulation; }
 
-        /* ============ INSTALL BUTTON (PWA) ============ */
         .install-btn {
             position: fixed;
             bottom: calc(18px + env(safe-area-inset-bottom, 0px));
@@ -82,7 +77,6 @@
             50% { box-shadow: 0 10px 30px rgba(44, 26, 97, 0.55), 0 0 0 8px rgba(158, 126, 248, 0.15); }
         }
 
-        /* Header */
         .header-main { background-color: var(--roxo-escuro); color: var(--branco); display: flex; justify-content: center; align-items: center; padding: 20px 30px; border-bottom-left-radius: 40px; border-bottom-right-radius: 40px; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); margin-bottom: 26px; }
         .logo { display: flex; align-items: center; justify-content: center; gap: 16px; }
         .logo-img { height: 62px; width: 62px; object-fit: contain; border-radius: 50%; background: #FFF; padding: 5px; box-shadow: 0 4px 12px rgba(0,0,0,0.25); flex-shrink: 0; }
@@ -91,7 +85,6 @@
         .logo-text h1 span { color: var(--roxo-claro); }
         .logo-text p { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; opacity: 0.85; margin-top: 4px; }
 
-        /* Container e Abas */
         .container { max-width: 1200px; margin: 0 auto; width: 92%; flex: 1; padding-bottom: 120px; }
         .tabs { display: flex; gap: 8px; margin-bottom: 18px; justify-content: center; flex-wrap: wrap; }
         .tab-btn { background: var(--branco); border: 2px solid var(--borda); padding: 12px 20px; font-size: 15px; font-weight: 600; color: var(--texto-claro); border-radius: 10px; cursor: pointer; transition: 0.3s; }
@@ -100,7 +93,6 @@
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Formulário Principal */
         .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .form-group { display: flex; flex-direction: column; }
         .form-group.full-width { grid-column: span 2; }
@@ -111,7 +103,6 @@
         .btn-submit { grid-column: span 2; background-color: var(--roxo-medio); color: var(--branco); border: none; padding: 18px; font-size: 18px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-submit:hover { background-color: var(--roxo-escuro); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(44, 26, 97, 0.3); }
 
-        /* ===== FOTO DO PALETE ===== */
         .photo-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
         .btn-photo-choice {
             display: inline-flex; align-items: center; gap: 8px;
@@ -127,7 +118,6 @@
         #photo-preview-wrap { display: none; margin-top: 14px; }
         #photo-preview { max-width: 100%; max-height: 260px; border-radius: 10px; border: 2px solid var(--borda); display: block; }
 
-        /* Dashboard Tela */
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
         .dashboard-header h2 { color: var(--roxo-escuro); font-size: 22px; }
         .btn-print-dash { background-color: var(--roxo-medio); color: var(--branco); border: none; padding: 12px 22px; font-size: 15px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; }
@@ -145,7 +135,6 @@
         .chart-card h3 { color: var(--roxo-escuro); margin-bottom: 15px; font-size: 15px; text-transform: uppercase; letter-spacing: 1px; align-self: flex-start; border-left: 4px solid var(--roxo-claro); padding-left: 10px; }
         .chart-container { position: relative; width: 100%; height: 300px; }
 
-        /* Filtros e Tabela Tela */
         .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; background: var(--roxo-bg); padding: 15px; border-radius: 10px; gap: 12px; flex-wrap: wrap; }
         .filter-bar select { padding: 10px 15px; border-radius: 8px; border: 2px solid var(--borda); font-size: 15px; font-weight: 600; color: var(--roxo-escuro); outline: none; cursor: pointer; background: #FFF; }
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -162,7 +151,6 @@
         .btn-photo { background-color: #2980B9; color: #FFF; }
         .btn-photo:hover { background-color: #1F618D; color: #FFF; }
 
-        /* Modal de Edição */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--branco); padding: 26px; border-radius: 15px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -177,7 +165,6 @@
         .btn-save { background: var(--roxo-medio); color: var(--branco); border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; }
         .btn-save:hover { background: var(--roxo-escuro); }
 
-        /* ================= ÁREAS DE IMPRESSÃO ================= */
         #print-area, #dashboard-print-area, #label-print-area { display: none; }
 
         @media print {
@@ -294,7 +281,6 @@
 </head>
 <body>
 
-    <!-- BOTÃO INSTALAR PWA -->
     <button id="installBtn" class="install-btn" type="button">
         <span class="ico">📲</span>
         <span>Instalar Aplicativo</span>
@@ -319,7 +305,6 @@
             <button class="tab-btn" onclick="switchTab('dashboard-tab', this)">📊 Dashboard</button>
         </div>
 
-        <!-- ABA 1: FORMULÁRIO -->
         <div id="form-tab" class="tab-content active">
             <form id="returnForm" onsubmit="saveReturn(event)">
                 <div class="form-grid">
@@ -382,7 +367,6 @@
             </form>
         </div>
 
-        <!-- ABA 2: HISTÓRICO -->
         <div id="history-tab" class="tab-content">
             <div class="filter-bar">
                 <div>
@@ -417,7 +401,6 @@
             </div>
         </div>
 
-        <!-- ABA 3: DASHBOARD -->
         <div id="dashboard-tab" class="tab-content">
             <div class="dashboard-header">
                 <h2>Visão Geral de Devoluções</h2>
@@ -463,7 +446,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE EDIÇÃO -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-content">
             <h3>Editar Devolução</h3>
@@ -518,7 +500,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISUALIZAÇÃO DA FOTO -->
     <div id="photoModal" class="modal-overlay" onclick="closePhotoModal()">
         <div class="modal-content" style="max-width: 720px; text-align: center;" onclick="event.stopPropagation()">
             <h3 id="photoModalTitle" style="text-align:left;">Foto do Palete</h3>
@@ -529,7 +510,6 @@
         </div>
     </div>
 
-    <!-- ÁREA DE IMPRESSÃO 1: RECIBO -->
     <div id="print-area">
         <div class="print-header">
             <h1>DONA RITA EMBALAGENS</h1>
@@ -552,7 +532,6 @@
         </div>
     </div>
 
-    <!-- ÁREA DE IMPRESSÃO 2: DASHBOARD (PDF) -->
     <div id="dashboard-print-area">
         <div class="print-dash-header">
             <div>
@@ -613,7 +592,6 @@
         </div>
     </div>
 
-    <!-- ÁREA DE IMPRESSÃO 3: ETIQUETA DO PALETE -->
     <div id="label-print-area">
         <div class="label-sheet">
             <div class="label-header">
@@ -665,7 +643,7 @@
             window.addEventListener('load', function () {
                 navigator.serviceWorker.register('service-worker.js', { scope: './' })
                     .then(function (registration) {
-                        console.log('[PWA] Service Worker registrado com sucesso. Escopo:', registration.scope);
+                        console.log('[PWA] Service Worker registrado. Escopo:', registration.scope);
                     })
                     .catch(function (error) {
                         console.warn('[PWA] Falha ao registrar Service Worker:', error);
@@ -684,18 +662,12 @@
                 return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) ||
                        (window.navigator.standalone === true);
             }
-
             function isMobileDevice() {
                 return /Android|iPhone|iPad|iPod|Mobile|webOS|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
                     || (('ontouchstart' in window) && window.innerWidth <= 900);
             }
-
-            function hideInstallBtn() {
-                installBtn.style.display = 'none';
-            }
-            function showInstallBtn() {
-                if (!isStandalone()) installBtn.style.display = 'flex';
-            }
+            function hideInstallBtn() { installBtn.style.display = 'none'; }
+            function showInstallBtn() { if (!isStandalone()) installBtn.style.display = 'flex'; }
 
             if (isStandalone()) hideInstallBtn();
 
@@ -704,16 +676,12 @@
                 deferredPrompt = e;
                 showInstallBtn();
             });
-
             window.addEventListener('appinstalled', function () {
                 hideInstallBtn();
                 deferredPrompt = null;
             });
-
             setTimeout(function () {
-                if (!isStandalone() && isMobileDevice()) {
-                    showInstallBtn();
-                }
+                if (!isStandalone() && isMobileDevice()) showInstallBtn();
             }, 1500);
 
             installBtn.addEventListener('click', async function () {
@@ -721,13 +689,9 @@
                     try {
                         deferredPrompt.prompt();
                         const choice = await deferredPrompt.userChoice;
-                        if (choice && choice.outcome === 'accepted') {
-                            hideInstallBtn();
-                        }
+                        if (choice && choice.outcome === 'accepted') hideInstallBtn();
                         deferredPrompt = null;
-                    } catch (err) {
-                        deferredPrompt = null;
-                    }
+                    } catch (err) { deferredPrompt = null; }
                 } else {
                     const ua = navigator.userAgent || '';
                     const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
@@ -754,77 +718,97 @@
         };
 
         let fbDb = null;
+        let fbReady = false;
         const FB_COLLECTION = 'devolucoes';
 
-        try {
-            if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+        function initFirebase() {
+            if (typeof firebase === 'undefined' || !firebase.initializeApp) {
+                console.error('[Firebase] ❌ SDK NÃO carregou. Verifique a conexão com a internet.');
+                return;
+            }
+            try {
                 if (!firebase.apps || firebase.apps.length === 0) {
                     firebase.initializeApp(firebaseConfig);
                 }
-                if (firebase.firestore) {
-                    fbDb = firebase.firestore();
-                    try {
-                        fbDb.enablePersistence({ synchronizeTabs: true }).catch(function () {});
-                    } catch (e) { /* ignore */ }
-                    console.log('[Firebase] Inicializado com sucesso.');
+                if (typeof firebase.firestore !== 'function') {
+                    console.error('[Firebase] ❌ Módulo Firestore não carregado.');
+                    return;
                 }
-            } else {
-                console.warn('[Firebase] SDK não carregado.');
+                fbDb = firebase.firestore();
+                fbReady = true;
+                console.log('%c[Firebase] ✅ Inicializado. Projeto: ' + firebaseConfig.projectId, 'color:#27AE60;font-weight:bold');
+
+                try {
+                    fbDb.enablePersistence({ synchronizeTabs: true })
+                        .then(function () { console.log('[Firebase] Persistência offline ativada.'); })
+                        .catch(function (err) {
+                            if (err && err.code === 'failed-precondition') {
+                                console.warn('[Firebase] Persistência não ativada (múltiplas abas).');
+                            } else if (err && err.code === 'unimplemented') {
+                                console.warn('[Firebase] Navegador não suporta persistência.');
+                            }
+                        });
+                } catch (e) { /* ignore */ }
+
+                fbDb.collection(FB_COLLECTION).limit(1).get()
+                    .then(function (snap) {
+                        console.log('%c[Firebase] ✅ Conexão com Firestore OK. Documentos na coleção: ' + snap.size, 'color:#27AE60;font-weight:bold');
+                    })
+                    .catch(function (err) {
+                        console.error('[Firebase] ❌ Erro ao conectar no Firestore:', err.code, err.message);
+                        if (err.code === 'permission-denied') {
+                            console.error('%c[Firebase] ⚠️ REGRAS BLOQUEANDO. Vá no Console > Firestore > Regras e libere leitura/escrita.', 'color:#C0392B;font-weight:bold');
+                        } else if (err.code === 'failed-precondition' || err.code === 'unavailable' || err.code === 'not-found') {
+                            console.error('%c[Firebase] ⚠️ O Firestore Database ainda NÃO FOI CRIADO. Vá no Console > Firestore Database > Criar banco de dados.', 'color:#C0392B;font-weight:bold');
+                        }
+                    });
+            } catch (e) {
+                console.error('[Firebase] ❌ Exceção na inicialização:', e);
             }
-        } catch (e) {
-            console.error('[Firebase] Erro na inicialização:', e);
         }
 
         function fbSaveItem(item) {
-            if (!fbDb || !item || item.id === undefined || item.id === null) return;
-            try {
-                fbDb.collection(FB_COLLECTION).doc(String(item.id)).set(item, { merge: true })
-                    .then(function () { console.log('[Firebase] Registro salvo:', item.id); })
-                    .catch(function (err) { console.error('[Firebase] Erro ao salvar item:', err); });
-            } catch (err) {
-                console.error('[Firebase] Exceção ao salvar:', err);
+            if (!fbDb || !item || item.id === undefined || item.id === null) {
+                console.warn('[Firebase] fbSaveItem: Firebase não pronto ou item inválido.');
+                return Promise.reject(new Error('Firebase não pronto'));
             }
-        }
-
-        function fbDeleteItem(id) {
-            if (!fbDb || id === undefined || id === null) return;
-            try {
-                fbDb.collection(FB_COLLECTION).doc(String(id)).delete()
-                    .then(function () { console.log('[Firebase] Registro removido:', id); })
-                    .catch(function (err) { console.error('[Firebase] Erro ao remover item:', err); });
-            } catch (err) {
-                console.error('[Firebase] Exceção ao remover:', err);
-            }
+            return fbDb.collection(FB_COLLECTION).doc(String(item.id)).set(item, { merge: true })
+                .then(function () {
+                    console.log('%c[Firebase] ✅ Salvo no Firestore: ID ' + item.id, 'color:#27AE60');
+                })
+                .catch(function (err) {
+                    console.error('[Firebase] ❌ Falha ao salvar ID ' + item.id + ':', err.code, err.message);
+                    throw err;
+                });
         }
 
         function startFirebaseListener() {
-            if (!fbDb) return;
+            if (!fbDb) {
+                console.warn('[Firebase] Listener não iniciado (Firebase não pronto).');
+                return;
+            }
             try {
                 fbDb.collection(FB_COLLECTION).onSnapshot(function (snapshot) {
                     const remote = [];
                     snapshot.forEach(function (doc) {
                         const data = doc.data();
-                        if (data && data.id !== undefined && data.id !== null) {
-                            remote.push(data);
-                        }
+                        if (data && data.id !== undefined && data.id !== null) remote.push(data);
                     });
+                    console.log('[Firebase] 🔄 Snapshot: ' + remote.length + ' registro(s) no servidor.');
 
                     const map = new Map();
                     history.forEach(function (item) { map.set(item.id, item); });
                     remote.forEach(function (item) { map.set(item.id, item); });
                     history = Array.from(map.values());
 
-                    try {
-                        localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history));
-                    } catch (e) { /* ignore quota */ }
-
+                    try { localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history)); } catch (e) {}
                     try { renderHistory(); } catch (e) {}
                     try { renderDashboard(); } catch (e) {}
                 }, function (err) {
-                    console.warn('[Firebase] Erro no listener:', err);
+                    console.error('[Firebase] ❌ Erro no listener:', err.code, err.message);
                 });
             } catch (err) {
-                console.error('[Firebase] Exceção no listener:', err);
+                console.error('[Firebase] ❌ Exceção no listener:', err);
             }
         }
 
@@ -839,6 +823,8 @@
         let fotoPaleteData = '';
 
         document.addEventListener('DOMContentLoaded', () => {
+            initFirebase();
+
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('dataEntrada').value = today;
             document.getElementById('dataSaida').value = today;
@@ -935,7 +921,8 @@
                 dataSaida: document.getElementById('dataSaida').value,
                 destino: document.getElementById('destino').value,
                 status: 'Aberta',
-                foto: fotoPaleteData || ''
+                foto: fotoPaleteData || '',
+                criadoEm: new Date().toISOString()
             };
 
             history.push(newReturn);
@@ -952,7 +939,27 @@
                 }
             }
 
-            fbSaveItem(newReturn);
+            // Salva no Firebase e mostra o resultado real
+            if (fbReady && fbDb) {
+                fbSaveItem(newReturn)
+                    .then(function () {
+                        alert('✅ Devolução registrada e salva no Firebase com sucesso!');
+                    })
+                    .catch(function (err) {
+                        let msg = 'Registro salvo no dispositivo, mas NÃO foi para o Firebase.\n\n';
+                        if (err && err.code === 'permission-denied') {
+                            msg += 'Motivo: REGRAS do Firestore estão bloqueando escrita.\n\nSolução: Console Firebase → Firestore → Regras → permita leitura e escrita.';
+                        } else if (err && (err.code === 'failed-precondition' || err.code === 'not-found' || err.code === 'unavailable')) {
+                            msg += 'Motivo: O Firestore Database ainda NÃO FOI CRIADO no Console do Firebase.\n\nSolução: Console Firebase → Firestore Database → Criar banco de dados.';
+                        } else {
+                            msg += 'Detalhes: ' + (err && err.message ? err.message : 'desconhecido');
+                        }
+                        alert(msg);
+                        console.error('[Firebase] Falha:', err);
+                    });
+            } else {
+                alert('⚠️ Registro salvo apenas no dispositivo. O Firebase não inicializou.\n\nAbra o Console do navegador (F12) para ver o erro.');
+            }
 
             document.getElementById('returnForm').reset();
             removePhoto();
@@ -960,7 +967,6 @@
             document.getElementById('dataEntrada').value = today;
             document.getElementById('dataSaida').value = today;
 
-            alert('Devolução registrada com sucesso!');
             const historyBtn = document.querySelectorAll('.tab-btn')[1];
             switchTab('history-tab', historyBtn);
         }
@@ -1043,9 +1049,22 @@
                 history[itemIndex].dataEntrada = document.getElementById('editDataEntrada').value;
                 history[itemIndex].dataSaida = document.getElementById('editDataSaida').value;
                 history[itemIndex].destino = document.getElementById('editDestino').value;
+                history[itemIndex].atualizadoEm = new Date().toISOString();
 
                 localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history));
-                fbSaveItem(history[itemIndex]);
+
+                if (fbReady && fbDb) {
+                    fbSaveItem(history[itemIndex])
+                        .then(function () {
+                            alert('✅ Alterações salvas no Firebase!');
+                        })
+                        .catch(function (err) {
+                            alert('Alterações salvas no dispositivo, mas não no Firebase.\nCódigo: ' + (err.code || err.message));
+                        });
+                } else {
+                    alert('Alterações salvas apenas no dispositivo (Firebase não pronto).');
+                }
+
                 closeEditModal();
                 renderHistory();
                 renderDashboard();
