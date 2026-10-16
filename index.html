@@ -27,6 +27,11 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <!-- ===== FIREBASE SDK (compat) ===== -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+
     <style>
         :root {
             --roxo-escuro: #2C1A61;
@@ -736,6 +741,94 @@
         })();
 
         /* =====================================================
+           ============ FIREBASE INIT ==========================
+           ===================================================== */
+        const firebaseConfig = {
+            apiKey: "AIzaSyDdfIhSeQFQYPO5XqTO2Em5zU8tgy9YA7E",
+            authDomain: "devolucao-f3da9.firebaseapp.com",
+            projectId: "devolucao-f3da9",
+            storageBucket: "devolucao-f3da9.firebasestorage.app",
+            messagingSenderId: "347436705014",
+            appId: "1:347436705014:web:9dd8fdbffe2452e11f78d7",
+            measurementId: "G-XC9XY1MGJF"
+        };
+
+        let fbDb = null;
+        const FB_COLLECTION = 'devolucoes';
+
+        try {
+            if (typeof firebase !== 'undefined' && firebase.initializeApp) {
+                if (!firebase.apps || firebase.apps.length === 0) {
+                    firebase.initializeApp(firebaseConfig);
+                }
+                if (firebase.firestore) {
+                    fbDb = firebase.firestore();
+                    try {
+                        fbDb.enablePersistence({ synchronizeTabs: true }).catch(function () {});
+                    } catch (e) { /* ignore */ }
+                    console.log('[Firebase] Inicializado com sucesso.');
+                }
+            } else {
+                console.warn('[Firebase] SDK não carregado.');
+            }
+        } catch (e) {
+            console.error('[Firebase] Erro na inicialização:', e);
+        }
+
+        function fbSaveItem(item) {
+            if (!fbDb || !item || item.id === undefined || item.id === null) return;
+            try {
+                fbDb.collection(FB_COLLECTION).doc(String(item.id)).set(item, { merge: true })
+                    .then(function () { console.log('[Firebase] Registro salvo:', item.id); })
+                    .catch(function (err) { console.error('[Firebase] Erro ao salvar item:', err); });
+            } catch (err) {
+                console.error('[Firebase] Exceção ao salvar:', err);
+            }
+        }
+
+        function fbDeleteItem(id) {
+            if (!fbDb || id === undefined || id === null) return;
+            try {
+                fbDb.collection(FB_COLLECTION).doc(String(id)).delete()
+                    .then(function () { console.log('[Firebase] Registro removido:', id); })
+                    .catch(function (err) { console.error('[Firebase] Erro ao remover item:', err); });
+            } catch (err) {
+                console.error('[Firebase] Exceção ao remover:', err);
+            }
+        }
+
+        function startFirebaseListener() {
+            if (!fbDb) return;
+            try {
+                fbDb.collection(FB_COLLECTION).onSnapshot(function (snapshot) {
+                    const remote = [];
+                    snapshot.forEach(function (doc) {
+                        const data = doc.data();
+                        if (data && data.id !== undefined && data.id !== null) {
+                            remote.push(data);
+                        }
+                    });
+
+                    const map = new Map();
+                    history.forEach(function (item) { map.set(item.id, item); });
+                    remote.forEach(function (item) { map.set(item.id, item); });
+                    history = Array.from(map.values());
+
+                    try {
+                        localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history));
+                    } catch (e) { /* ignore quota */ }
+
+                    try { renderHistory(); } catch (e) {}
+                    try { renderDashboard(); } catch (e) {}
+                }, function (err) {
+                    console.warn('[Firebase] Erro no listener:', err);
+                });
+            } catch (err) {
+                console.error('[Firebase] Exceção no listener:', err);
+            }
+        }
+
+        /* =====================================================
            ============ LÓGICA PRINCIPAL =======================
            ===================================================== */
         let history = JSON.parse(localStorage.getItem('donaRitaDevolucoes')) || [];
@@ -751,6 +844,7 @@
             document.getElementById('dataSaida').value = today;
             renderHistory();
             renderDashboard();
+            startFirebaseListener();
         });
 
         function switchTab(tabId, btnElement) {
@@ -858,6 +952,8 @@
                 }
             }
 
+            fbSaveItem(newReturn);
+
             document.getElementById('returnForm').reset();
             removePhoto();
             const today = new Date().toISOString().split('T')[0];
@@ -949,6 +1045,7 @@
                 history[itemIndex].destino = document.getElementById('editDestino').value;
 
                 localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history));
+                fbSaveItem(history[itemIndex]);
                 closeEditModal();
                 renderHistory();
                 renderDashboard();
