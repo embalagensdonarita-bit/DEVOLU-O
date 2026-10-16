@@ -102,6 +102,7 @@
         .form-group textarea { resize: vertical; min-height: 100px; }
         .btn-submit { grid-column: span 2; background-color: var(--roxo-medio); color: var(--branco); border: none; padding: 18px; font-size: 18px; font-weight: 700; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 10px; }
         .btn-submit:hover { background-color: var(--roxo-escuro); transform: translateY(-2px); box-shadow: 0 6px 15px rgba(44, 26, 97, 0.3); }
+        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
         .photo-buttons { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
         .btn-photo-choice {
@@ -117,6 +118,7 @@
         .photo-hint { font-size: 13px; color: var(--texto-claro); margin-top: 4px; }
         #photo-preview-wrap { display: none; margin-top: 14px; }
         #photo-preview { max-width: 100%; max-height: 260px; border-radius: 10px; border: 2px solid var(--borda); display: block; }
+        .photo-meta { font-size: 12px; color: var(--texto-claro); margin-top: 6px; }
 
         .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; }
         .dashboard-header h2 { color: var(--roxo-escuro); font-size: 22px; }
@@ -137,6 +139,9 @@
 
         .filter-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; background: var(--roxo-bg); padding: 15px; border-radius: 10px; gap: 12px; flex-wrap: wrap; }
         .filter-bar select { padding: 10px 15px; border-radius: 8px; border: 2px solid var(--borda); font-size: 15px; font-weight: 600; color: var(--roxo-escuro); outline: none; cursor: pointer; background: #FFF; }
+        .btn-sync { background: var(--roxo-medio); color: #FFF; border: none; padding: 10px 18px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; display: inline-flex; align-items: center; gap: 6px; transition: 0.3s; }
+        .btn-sync:hover { background: var(--roxo-escuro); }
+        .btn-sync:disabled { opacity: 0.6; cursor: wait; }
         .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; min-width: 720px; }
         th, td { padding: 13px 12px; text-align: left; border-bottom: 1px solid var(--borda); font-size: 14px; }
@@ -151,6 +156,12 @@
         .btn-photo { background-color: #2980B9; color: #FFF; }
         .btn-photo:hover { background-color: #1F618D; color: #FFF; }
 
+        .pagination-bar { display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 18px; flex-wrap: wrap; }
+        .btn-load-more { background: var(--roxo-medio); color: #FFF; border: none; padding: 12px 26px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 15px; transition: 0.3s; }
+        .btn-load-more:hover { background: var(--roxo-escuro); }
+        .btn-load-more:disabled { opacity: 0.5; cursor: wait; }
+        .pagination-info { font-size: 13px; color: var(--texto-claro); }
+
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: var(--branco); padding: 26px; border-radius: 15px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
@@ -164,6 +175,7 @@
         .btn-cancel:hover { background: #D0D0D0; }
         .btn-save { background: var(--roxo-medio); color: var(--branco); border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 16px; }
         .btn-save:hover { background: var(--roxo-escuro); }
+        .btn-save:disabled { opacity: 0.6; cursor: not-allowed; }
 
         #print-area, #dashboard-print-area, #label-print-area { display: none; }
 
@@ -257,6 +269,7 @@
             .btn-submit { grid-column: span 1; font-size: 16px; padding: 16px; }
             .filter-bar { flex-direction: column; align-items: stretch; gap: 10px; }
             .filter-bar select { width: 100%; }
+            .btn-sync { width: 100%; justify-content: center; }
             .dashboard-header { flex-direction: column; align-items: flex-start; }
             .btn-print-dash { width: 100%; justify-content: center; }
             .modal-grid { grid-template-columns: 1fr; }
@@ -310,15 +323,15 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label>Nome do Cliente</label>
-                        <input type="text" id="cliente" required placeholder="Ex: João da Silva">
+                        <input type="text" id="cliente" required placeholder="Ex: João da Silva" maxlength="150">
                     </div>
                     <div class="form-group">
                         <label>NF (Nota Fiscal)</label>
-                        <input type="text" id="nf" required placeholder="Ex: 12345">
+                        <input type="text" id="nf" required placeholder="Ex: 12345" maxlength="50">
                     </div>
                     <div class="form-group full-width">
                         <label>Definição do Produto</label>
-                        <textarea id="produto" required placeholder="Descreva o produto, marca, modelo, cor..."></textarea>
+                        <textarea id="produto" required placeholder="Descreva o produto, marca, modelo, cor..." maxlength="1000"></textarea>
                     </div>
                     <div class="form-group">
                         <label>Quantidade</label>
@@ -326,7 +339,7 @@
                     </div>
                     <div class="form-group">
                         <label>Motivo da Devolução</label>
-                        <input type="text" id="motivo" required placeholder="Ex: Produto danificado, tamanho errado...">
+                        <input type="text" id="motivo" required placeholder="Ex: Produto danificado, tamanho errado..." maxlength="150">
                     </div>
                     <div class="form-group">
                         <label>Data de Entrada</label>
@@ -338,7 +351,7 @@
                     </div>
                     <div class="form-group full-width">
                         <label>Para onde será destinado?</label>
-                        <input type="text" id="destino" required placeholder="Ex: Estoque Central, Fornecedor X, Descarte...">
+                        <input type="text" id="destino" required placeholder="Ex: Estoque Central, Fornecedor X, Descarte..." maxlength="200">
                     </div>
 
                     <div class="form-group full-width">
@@ -351,18 +364,19 @@
                                 🖼️ Escolher da Galeria
                             </button>
                         </div>
-                        <div class="photo-hint">No celular, o botão "Tirar Foto" abre a câmera traseira automaticamente.</div>
+                        <div class="photo-hint">No celular, o botão "Tirar Foto" abre a câmera traseira automaticamente. A imagem é otimizada antes de salvar.</div>
 
                         <input type="file" id="fotoCamera" accept="image/*" capture="environment" style="display:none;" onchange="handlePhoto(event)">
                         <input type="file" id="fotoGaleria" accept="image/*" style="display:none;" onchange="handlePhoto(event)">
 
                         <div id="photo-preview-wrap">
                             <img id="photo-preview" src="" alt="Pré-visualização do Palete">
+                            <div class="photo-meta" id="photo-meta"></div>
                             <button type="button" class="btn-action btn-photo" onclick="removePhoto()" style="margin-top:10px;">🗑️ Remover Foto</button>
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-submit">💾 Salvar Devolução</button>
+                    <button type="submit" class="btn-submit" id="btnSubmit">💾 Salvar Devolução</button>
                 </div>
             </form>
         </div>
@@ -371,14 +385,15 @@
             <div class="filter-bar">
                 <div>
                     <label style="font-weight: 600; margin-right: 10px; color: var(--roxo-escuro);">Filtrar por:</label>
-                    <select id="filterSelect" onchange="renderHistory()">
+                    <select id="filterSelect" onchange="scheduleRenderHistory()">
                         <option value="all">Todos os Registros</option>
                         <option value="today">Hoje</option>
                         <option value="month">Este Mês</option>
                     </select>
                 </div>
-                <div style="font-weight: 600; color: var(--texto-claro);">
-                    Mostrando <span id="count-display">0</span> registros
+                <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+                    <button class="btn-sync" id="btnSync" onclick="loadFromFirebase(false)" title="Buscar registros mais recentes do servidor">🔄 Sincronizar</button>
+                    <span style="font-weight: 600; color: var(--texto-claro);">Mostrando <span id="count-display">0</span> registros</span>
                 </div>
             </div>
             <div class="table-responsive">
@@ -398,6 +413,10 @@
                     </thead>
                     <tbody id="historyTableBody"></tbody>
                 </table>
+            </div>
+            <div class="pagination-bar">
+                <button class="btn-load-more" id="btnLoadMore" onclick="loadFromFirebase(true)" style="display:none;">⬇️ Carregar mais registros</button>
+                <span class="pagination-info" id="pagination-info"></span>
             </div>
         </div>
 
@@ -461,11 +480,11 @@
                 </div>
                 <div class="form-group">
                     <label>Nome do Cliente</label>
-                    <input type="text" id="editCliente" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;">
+                    <input type="text" id="editCliente" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;" maxlength="150">
                 </div>
                 <div class="form-group">
                     <label>NF (Nota Fiscal)</label>
-                    <input type="text" id="editNf" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;">
+                    <input type="text" id="editNf" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;" maxlength="50">
                 </div>
                 <div class="form-group">
                     <label>Quantidade</label>
@@ -473,7 +492,7 @@
                 </div>
                 <div class="form-group">
                     <label>Motivo da Devolução</label>
-                    <input type="text" id="editMotivo" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;">
+                    <input type="text" id="editMotivo" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;" maxlength="150">
                 </div>
                 <div class="form-group">
                     <label>Data de Entrada</label>
@@ -485,17 +504,17 @@
                 </div>
                 <div class="form-group full-width">
                     <label>Definição do Produto</label>
-                    <textarea id="editProduto" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px; resize: vertical; min-height: 80px;"></textarea>
+                    <textarea id="editProduto" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px; resize: vertical; min-height: 80px;" maxlength="1000"></textarea>
                 </div>
                 <div class="form-group full-width">
                     <label>Para onde será destinado?</label>
-                    <input type="text" id="editDestino" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;">
+                    <input type="text" id="editDestino" style="padding: 12px; border: 2px solid var(--borda); border-radius: 8px; font-size: 16px;" maxlength="200">
                 </div>
             </div>
 
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closeEditModal()">Cancelar</button>
-                <button class="btn-save" onclick="saveEdit()">Salvar Alterações</button>
+                <button class="btn-save" id="btnSaveEdit" onclick="saveEdit()">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -503,7 +522,7 @@
     <div id="photoModal" class="modal-overlay" onclick="closePhotoModal()">
         <div class="modal-content" style="max-width: 720px; text-align: center;" onclick="event.stopPropagation()">
             <h3 id="photoModalTitle" style="text-align:left;">Foto do Palete</h3>
-            <img id="photoModalImg" src="" alt="Foto do Palete" style="max-width: 100%; max-height: 70vh; border-radius: 10px; border: 2px solid var(--borda);">
+            <img id="photoModalImg" src="" alt="Foto do Palete" style="max-width: 100%; max-height: 70vh; border-radius: 10px; border: 2px solid var(--borda);" loading="lazy">
             <div class="modal-actions">
                 <button class="btn-cancel" onclick="closePhotoModal()">Fechar</button>
             </div>
@@ -720,10 +739,12 @@
         let fbDb = null;
         let fbReady = false;
         const FB_COLLECTION = 'devolucoes';
+        const LS_KEY = 'donaRitaDevolucoes';
+        const PAGE_SIZE = 50; // registros por página para economizar leituras
 
         function initFirebase() {
             if (typeof firebase === 'undefined' || !firebase.initializeApp) {
-                console.error('[Firebase] ❌ SDK NÃO carregou. Verifique a conexão com a internet.');
+                console.error('[Firebase] ❌ SDK NÃO carregou.');
                 return;
             }
             try {
@@ -736,7 +757,7 @@
                 }
                 fbDb = firebase.firestore();
                 fbReady = true;
-                console.log('%c[Firebase] ✅ Inicializado. Projeto: ' + firebaseConfig.projectId, 'color:#27AE60;font-weight:bold');
+                console.log('%c[Firebase] ✅ Inicializado.', 'color:#27AE60;font-weight:bold');
 
                 try {
                     fbDb.enablePersistence({ synchronizeTabs: true })
@@ -749,19 +770,6 @@
                             }
                         });
                 } catch (e) { /* ignore */ }
-
-                fbDb.collection(FB_COLLECTION).limit(1).get()
-                    .then(function (snap) {
-                        console.log('%c[Firebase] ✅ Conexão com Firestore OK. Documentos na coleção: ' + snap.size, 'color:#27AE60;font-weight:bold');
-                    })
-                    .catch(function (err) {
-                        console.error('[Firebase] ❌ Erro ao conectar no Firestore:', err.code, err.message);
-                        if (err.code === 'permission-denied') {
-                            console.error('%c[Firebase] ⚠️ REGRAS BLOQUEANDO. Vá no Console > Firestore > Regras e libere leitura/escrita.', 'color:#C0392B;font-weight:bold');
-                        } else if (err.code === 'failed-precondition' || err.code === 'unavailable' || err.code === 'not-found') {
-                            console.error('%c[Firebase] ⚠️ O Firestore Database ainda NÃO FOI CRIADO. Vá no Console > Firestore Database > Criar banco de dados.', 'color:#C0392B;font-weight:bold');
-                        }
-                    });
             } catch (e) {
                 console.error('[Firebase] ❌ Exceção na inicialização:', e);
             }
@@ -769,12 +777,11 @@
 
         function fbSaveItem(item) {
             if (!fbDb || !item || item.id === undefined || item.id === null) {
-                console.warn('[Firebase] fbSaveItem: Firebase não pronto ou item inválido.');
                 return Promise.reject(new Error('Firebase não pronto'));
             }
             return fbDb.collection(FB_COLLECTION).doc(String(item.id)).set(item, { merge: true })
                 .then(function () {
-                    console.log('%c[Firebase] ✅ Salvo no Firestore: ID ' + item.id, 'color:#27AE60');
+                    console.log('%c[Firebase] ✅ Salvo: ID ' + item.id, 'color:#27AE60');
                 })
                 .catch(function (err) {
                     console.error('[Firebase] ❌ Falha ao salvar ID ' + item.id + ':', err.code, err.message);
@@ -782,47 +789,130 @@
                 });
         }
 
-        function startFirebaseListener() {
-            if (!fbDb) {
-                console.warn('[Firebase] Listener não iniciado (Firebase não pronto).');
-                return;
-            }
+        /* =====================================================
+           ============ CARGA SOB DEMANDA (SUBSTITUI ONSNAPSHOT)
+           =====================================================
+           Economia de leituras: em vez de escutar toda a coleção em tempo real
+           (custa 1 leitura por documento alterado para cada cliente conectado),
+           carregamos apenas uma página por vez, apenas quando necessário.
+        */
+        let lastDocId = null;
+        let hasMoreFirebase = true;
+        let isLoadingFirebase = false;
+
+        async function loadFromFirebase(loadMore) {
+            if (!fbReady || !fbDb || isLoadingFirebase) return;
+
+            isLoadingFirebase = true;
+            const btnSync = document.getElementById('btnSync');
+            const btnLoadMore = document.getElementById('btnLoadMore');
+            if (btnSync) btnSync.disabled = true;
+            if (btnLoadMore) btnLoadMore.disabled = true;
+
             try {
-                fbDb.collection(FB_COLLECTION).onSnapshot(function (snapshot) {
-                    const remote = [];
-                    snapshot.forEach(function (doc) {
-                        const data = doc.data();
-                        if (data && data.id !== undefined && data.id !== null) remote.push(data);
-                    });
-                    console.log('[Firebase] 🔄 Snapshot: ' + remote.length + ' registro(s) no servidor.');
+                let query = fbDb.collection(FB_COLLECTION)
+                    .orderBy(firebase.firestore.FieldPath.documentId(), 'desc')
+                    .limit(PAGE_SIZE);
 
-                    const map = new Map();
-                    history.forEach(function (item) { map.set(item.id, item); });
-                    remote.forEach(function (item) { map.set(item.id, item); });
-                    history = Array.from(map.values());
+                if (loadMore && lastDocId) {
+                    query = query.startAfter(String(lastDocId));
+                }
 
-                    try { localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history)); } catch (e) {}
-                    try { renderHistory(); } catch (e) {}
-                    try { renderDashboard(); } catch (e) {}
-                }, function (err) {
-                    console.error('[Firebase] ❌ Erro no listener:', err.code, err.message);
+                const snap = await query.get();
+                const docs = [];
+                snap.forEach(function (doc) {
+                    const data = doc.data();
+                    if (data && data.id !== undefined && data.id !== null) {
+                        docs.push(data);
+                        lastDocId = doc.id;
+                    }
                 });
+
+                hasMoreFirebase = docs.length === PAGE_SIZE;
+
+                // Mescla com cache local por ID (Firestore tem prioridade).
+                const map = new Map();
+                history.forEach(function (item) { map.set(item.id, item); });
+                docs.forEach(function (item) { map.set(item.id, item); });
+                history = Array.from(map.values());
+
+                persistHistory();
+                renderHistory();
+                renderDashboard();
+
+                updatePaginationUI(docs.length);
+
+                if (btnLoadMore) btnLoadMore.style.display = hasMoreFirebase ? 'inline-flex' : 'none';
+                console.log('[Firebase] Carregados ' + docs.length + ' registro(s). Total em memória: ' + history.length);
             } catch (err) {
-                console.error('[Firebase] ❌ Exceção no listener:', err);
+                console.error('[Firebase] ❌ Erro ao carregar:', err.code, err.message);
+                if (err.code === 'permission-denied') {
+                    alert('⚠️ Permissão negada pelo Firestore.\n\nVerifique as Regras no Console do Firebase (Firestore → Regras).');
+                } else if (err.code === 'failed-precondition' || err.code === 'not-found') {
+                    alert('⚠️ O Firestore Database ainda não foi criado.\n\nAcesse o Console do Firebase → Firestore Database → Criar banco de dados.');
+                } else if (err.code === 'unavailable') {
+                    console.warn('Firestore indisponível (offline). Usando cache local.');
+                }
+            } finally {
+                isLoadingFirebase = false;
+                if (btnSync) btnSync.disabled = false;
+                if (btnLoadMore) btnLoadMore.disabled = false;
+            }
+        }
+
+        function updatePaginationUI(newDocs) {
+            const info = document.getElementById('pagination-info');
+            if (!info) return;
+            if (newDocs === 0 && hasMoreFirebase === false) {
+                info.textContent = history.length + ' registro(s) em memória.';
+            } else {
+                info.textContent = history.length + ' registro(s) em memória.';
+            }
+        }
+
+        /* =====================================================
+           ============ PERSISTÊNCIA LOCAL COM DEGRADAÇÃO ======
+           ===================================================== */
+        function persistHistory() {
+            try {
+                localStorage.setItem(LS_KEY, JSON.stringify(history));
+            } catch (err) {
+                // Se o localStorage estourar (5-10MB), remove fotos das entradas mais antigas
+                console.warn('[Cache] localStorage cheio. Removendo fotos antigas do cache...');
+                try {
+                    const stripped = history.map(function (item, idx) {
+                        // Mantém fotos apenas dos últimos 30 registros
+                        if (idx < history.length - 30) {
+                            return Object.assign({}, item, { foto: '' });
+                        }
+                        return item;
+                    });
+                    localStorage.setItem(LS_KEY, JSON.stringify(stripped));
+                } catch (e2) {
+                    console.error('[Cache] Falha total ao salvar no localStorage.', e2);
+                }
             }
         }
 
         /* =====================================================
            ============ LÓGICA PRINCIPAL =======================
            ===================================================== */
-        let history = JSON.parse(localStorage.getItem('donaRitaDevolucoes')) || [];
+        let history = (function () {
+            try { return JSON.parse(localStorage.getItem(LS_KEY)) || []; }
+            catch (e) { return []; }
+        })();
+
         let chartMotivosInstance = null;
         let chartStatusInstance = null;
         let chartQuantidadeInstance = null;
         let chartClientesInstance = null;
         let fotoPaleteData = '';
+        let fotoPaleteBytes = 0;
+        let isSavingReturn = false;
+        let isSavingEdit = false;
+        let renderHistoryTimer = null;
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', function () {
             initFirebase();
 
             const today = new Date().toISOString().split('T')[0];
@@ -830,17 +920,24 @@
             document.getElementById('dataSaida').value = today;
             renderHistory();
             renderDashboard();
-            startFirebaseListener();
+
+            // Carrega a primeira página do Firestore (economiza leituras)
+            setTimeout(function () { loadFromFirebase(false); }, 400);
         });
 
         function switchTab(tabId, btnElement) {
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(function (btn) { btn.classList.remove('active'); });
+            document.querySelectorAll('.tab-content').forEach(function (content) { content.classList.remove('active'); });
             btnElement.classList.add('active');
             document.getElementById(tabId).classList.add('active');
 
             if (tabId === 'history-tab') renderHistory();
             else if (tabId === 'dashboard-tab') renderDashboard();
+        }
+
+        function scheduleRenderHistory() {
+            if (renderHistoryTimer) clearTimeout(renderHistoryTimer);
+            renderHistoryTimer = setTimeout(renderHistory, 250);
         }
 
         function openCameraInput() {
@@ -858,11 +955,25 @@
             const file = event.target.files[0];
             if (!file) return;
 
+            // Valida tipo
+            if (!file.type || !file.type.startsWith('image/')) {
+                alert('Por favor, selecione um arquivo de imagem válido.');
+                event.target.value = '';
+                return;
+            }
+            // Limite de segurança do arquivo original
+            if (file.size > 15 * 1024 * 1024) {
+                alert('A imagem é muito grande (máx. 15MB). Escolha uma imagem menor.');
+                event.target.value = '';
+                return;
+            }
+
             const reader = new FileReader();
             reader.onload = function (e) {
                 const img = new Image();
                 img.onload = function () {
-                    const maxLargura = 800;
+                    // Compressão agressiva para caber no plano Spark
+                    const maxLargura = 720;
                     let w = img.width;
                     let h = img.height;
                     if (w > maxLargura) {
@@ -877,27 +988,35 @@
                     ctx.fillRect(0, 0, w, h);
                     ctx.drawImage(img, 0, 0, w, h);
 
-                    fotoPaleteData = canvas.toDataURL('image/jpeg', 0.7);
+                    fotoPaleteData = canvas.toDataURL('image/jpeg', 0.55);
+                    fotoPaleteBytes = Math.round((fotoPaleteData.length * 3) / 4);
+
                     document.getElementById('photo-preview').src = fotoPaleteData;
                     document.getElementById('photo-preview-wrap').style.display = 'block';
+                    document.getElementById('photo-meta').textContent =
+                        'Tamanho otimizado: ~' + Math.round(fotoPaleteBytes / 1024) + ' KB (' + w + '×' + h + ')';
                 };
+                img.onerror = function () { alert('Não foi possível processar a imagem.'); };
                 img.src = e.target.result;
             };
+            reader.onerror = function () { alert('Falha ao ler o arquivo.'); };
             reader.readAsDataURL(file);
         }
 
         function removePhoto() {
             fotoPaleteData = '';
+            fotoPaleteBytes = 0;
             const cam = document.getElementById('fotoCamera');
             const gal = document.getElementById('fotoGaleria');
             if (cam) cam.value = '';
             if (gal) gal.value = '';
             document.getElementById('photo-preview').src = '';
+            document.getElementById('photo-meta').textContent = '';
             document.getElementById('photo-preview-wrap').style.display = 'none';
         }
 
         function viewPhoto(id) {
-            const item = history.find(r => r.id === id);
+            const item = history.find(function (r) { return r.id === id; });
             if (!item || !item.foto) return;
             document.getElementById('photoModalTitle').innerText = 'Foto do Palete - ' + item.cliente + ' (NF ' + item.nf + ')';
             document.getElementById('photoModalImg').src = item.foto;
@@ -906,69 +1025,79 @@
 
         function closePhotoModal() {
             document.getElementById('photoModal').classList.remove('active');
+            document.getElementById('photoModalImg').src = '';
         }
 
         function saveReturn(event) {
             event.preventDefault();
+            if (isSavingReturn) return; // Previne clique duplo
+
+            const btn = document.getElementById('btnSubmit');
+            isSavingReturn = true;
+            btn.disabled = true;
+            btn.textContent = '⏳ Salvando...';
+
             const newReturn = {
                 id: Date.now(),
-                cliente: document.getElementById('cliente').value,
-                nf: document.getElementById('nf').value,
-                produto: document.getElementById('produto').value,
-                quantidade: parseInt(document.getElementById('quantidade').value),
-                motivo: document.getElementById('motivo').value,
+                cliente: document.getElementById('cliente').value.trim(),
+                nf: document.getElementById('nf').value.trim(),
+                produto: document.getElementById('produto').value.trim(),
+                quantidade: parseInt(document.getElementById('quantidade').value, 10) || 0,
+                motivo: document.getElementById('motivo').value.trim(),
                 dataEntrada: document.getElementById('dataEntrada').value,
                 dataSaida: document.getElementById('dataSaida').value,
-                destino: document.getElementById('destino').value,
+                destino: document.getElementById('destino').value.trim(),
                 status: 'Aberta',
                 foto: fotoPaleteData || '',
                 criadoEm: new Date().toISOString()
             };
 
             history.push(newReturn);
+            persistHistory();
+            lastDocId = String(newReturn.id); // Atualiza cursor
 
-            try {
-                localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history));
-            } catch (err) {
-                newReturn.foto = '';
-                try {
-                    localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history));
-                    alert('A devolução foi salva, mas o armazenamento local está cheio e a foto não pôde ser guardada.');
-                } catch (e2) {
-                    alert('Erro: o armazenamento local está cheio. Libere espaço para salvar novos registros.');
-                }
+            // Persiste no Firestore sem recarregar todo o conjunto
+            const firebasePromise = (fbReady && fbDb)
+                ? fbSaveItem(newReturn)
+                : Promise.reject(new Error('Firebase não pronto'));
+
+            firebasePromise
+                .then(function () {
+                    finalizeSave('✅ Devolução registrada e salva no Firebase!');
+                })
+                .catch(function (err) {
+                    let msg = 'Registro salvo no dispositivo, mas NÃO foi para o Firebase.\n\n';
+                    if (err && err.code === 'permission-denied') {
+                        msg += 'Motivo: as regras do Firestore estão bloqueando a escrita.\n\nSolução: Console Firebase → Firestore → Regras.';
+                    } else if (err && (err.code === 'failed-precondition' || err.code === 'not-found' || err.code === 'unavailable')) {
+                        msg += 'Motivo: o Firestore Database não foi criado ou está indisponível.';
+                    } else {
+                        msg += 'Detalhes: ' + (err && err.message ? err.message : 'desconhecido');
+                    }
+                    alert(msg);
+                    console.error('[Firebase] Falha ao salvar:', err);
+                    finalizeSave(null);
+                });
+
+            function finalizeSave(successMsg) {
+                if (successMsg) alert(successMsg);
+
+                document.getElementById('returnForm').reset();
+                removePhoto();
+                const today = new Date().toISOString().split('T')[0];
+                document.getElementById('dataEntrada').value = today;
+                document.getElementById('dataSaida').value = today;
+
+                isSavingReturn = false;
+                btn.disabled = false;
+                btn.textContent = '💾 Salvar Devolução';
+
+                renderHistory();
+                renderDashboard();
+
+                const historyBtn = document.querySelectorAll('.tab-btn')[1];
+                switchTab('history-tab', historyBtn);
             }
-
-            // Salva no Firebase e mostra o resultado real
-            if (fbReady && fbDb) {
-                fbSaveItem(newReturn)
-                    .then(function () {
-                        alert('✅ Devolução registrada e salva no Firebase com sucesso!');
-                    })
-                    .catch(function (err) {
-                        let msg = 'Registro salvo no dispositivo, mas NÃO foi para o Firebase.\n\n';
-                        if (err && err.code === 'permission-denied') {
-                            msg += 'Motivo: REGRAS do Firestore estão bloqueando escrita.\n\nSolução: Console Firebase → Firestore → Regras → permita leitura e escrita.';
-                        } else if (err && (err.code === 'failed-precondition' || err.code === 'not-found' || err.code === 'unavailable')) {
-                            msg += 'Motivo: O Firestore Database ainda NÃO FOI CRIADO no Console do Firebase.\n\nSolução: Console Firebase → Firestore Database → Criar banco de dados.';
-                        } else {
-                            msg += 'Detalhes: ' + (err && err.message ? err.message : 'desconhecido');
-                        }
-                        alert(msg);
-                        console.error('[Firebase] Falha:', err);
-                    });
-            } else {
-                alert('⚠️ Registro salvo apenas no dispositivo. O Firebase não inicializou.\n\nAbra o Console do navegador (F12) para ver o erro.');
-            }
-
-            document.getElementById('returnForm').reset();
-            removePhoto();
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('dataEntrada').value = today;
-            document.getElementById('dataSaida').value = today;
-
-            const historyBtn = document.querySelectorAll('.tab-btn')[1];
-            switchTab('history-tab', historyBtn);
         }
 
         function renderHistory() {
@@ -977,56 +1106,77 @@
             const currentMonth = today.substring(0, 7);
 
             let filteredHistory = history;
-            if (filter === 'today') filteredHistory = history.filter(item => item.dataEntrada === today);
-            else if (filter === 'month') filteredHistory = history.filter(item => item.dataEntrada.startsWith(currentMonth));
+            if (filter === 'today') {
+                filteredHistory = history.filter(function (item) { return item.dataEntrada === today; });
+            } else if (filter === 'month') {
+                filteredHistory = history.filter(function (item) {
+                    return item.dataEntrada && item.dataEntrada.startsWith(currentMonth);
+                });
+            }
 
-            filteredHistory.sort((a, b) => new Date(b.dataEntrada) - new Date(a.dataEntrada));
+            filteredHistory = filteredHistory.slice().sort(function (a, b) {
+                return new Date(b.dataEntrada || 0) - new Date(a.dataEntrada || 0);
+            });
+
             const tbody = document.getElementById('historyTableBody');
             tbody.innerHTML = '';
 
             if (filteredHistory.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="9" style="text-align: center; padding: 30px; color: #666;">Nenhum registro encontrado para este filtro.</td></tr>`;
+                tbody.innerHTML = '<tr><td colspan="9" style="text-align: center; padding: 30px; color: #666;">Nenhum registro encontrado para este filtro.</td></tr>';
             } else {
-                filteredHistory.forEach(item => {
+                const frag = document.createDocumentFragment();
+                filteredHistory.forEach(function (item) {
                     const tr = document.createElement('tr');
                     const status = item.status || 'Aberta';
                     const statusColor = status === 'Resolvida' ? '#27AE60' : '#C0392B';
-                    tr.innerHTML = `
-                        <td>${formatDate(item.dataEntrada)}</td>
-                        <td><strong>${item.cliente}</strong></td>
-                        <td>${item.nf}</td>
-                        <td>${item.produto.substring(0, 20)}${item.produto.length > 20 ? '...' : ''}</td>
-                        <td>${item.quantidade}</td>
-                        <td>${item.motivo}</td>
-                        <td>${item.destino}</td>
-                        <td><span style="color: ${statusColor}; font-weight: bold;">${status}</span></td>
-                        <td>
-                            <button class="btn-action" onclick="printReceipt(${item.id})">🖨️ PDF</button>
-                            <button class="btn-action btn-label" onclick="printLabel(${item.id})">🏷️ Etiqueta</button>
-                            ${item.foto ? `<button class="btn-action btn-photo" onclick="viewPhoto(${item.id})">📷 Foto</button>` : ''}
-                            <button class="btn-action btn-edit" onclick="openEditModal(${item.id})">✏️ Editar</button>
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
+                    const produto = item.produto || '';
+                    const produtoCurto = produto.substring(0, 20) + (produto.length > 20 ? '...' : '');
+                    tr.innerHTML =
+                        '<td>' + escapeHtml(formatDate(item.dataEntrada)) + '</td>' +
+                        '<td><strong>' + escapeHtml(item.cliente || '') + '</strong></td>' +
+                        '<td>' + escapeHtml(item.nf || '') + '</td>' +
+                        '<td>' + escapeHtml(produtoCurto) + '</td>' +
+                        '<td>' + (item.quantidade || 0) + '</td>' +
+                        '<td>' + escapeHtml(item.motivo || '') + '</td>' +
+                        '<td>' + escapeHtml(item.destino || '') + '</td>' +
+                        '<td><span style="color: ' + statusColor + '; font-weight: bold;">' + status + '</span></td>' +
+                        '<td>' +
+                            '<button class="btn-action" onclick="printReceipt(' + item.id + ')">🖨️ PDF</button>' +
+                            '<button class="btn-action btn-label" onclick="printLabel(' + item.id + ')">🏷️ Etiqueta</button>' +
+                            (item.foto ? '<button class="btn-action btn-photo" onclick="viewPhoto(' + item.id + ')">📷 Foto</button>' : '') +
+                            '<button class="btn-action btn-edit" onclick="openEditModal(' + item.id + ')">✏️ Editar</button>' +
+                        '</td>';
+                    frag.appendChild(tr);
                 });
+                tbody.appendChild(frag);
             }
             document.getElementById('count-display').innerText = filteredHistory.length;
         }
 
+        function escapeHtml(str) {
+            if (str === undefined || str === null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function openEditModal(id) {
-            const item = history.find(r => r.id === id);
+            const item = history.find(function (r) { return r.id === id; });
             if (!item) return;
 
             document.getElementById('editId').value = item.id;
             document.getElementById('editStatus').value = item.status || 'Aberta';
-            document.getElementById('editCliente').value = item.cliente;
-            document.getElementById('editNf').value = item.nf;
-            document.getElementById('editProduto').value = item.produto;
-            document.getElementById('editQuantidade').value = item.quantidade;
-            document.getElementById('editMotivo').value = item.motivo;
-            document.getElementById('editDataEntrada').value = item.dataEntrada;
-            document.getElementById('editDataSaida').value = item.dataSaida;
-            document.getElementById('editDestino').value = item.destino;
+            document.getElementById('editCliente').value = item.cliente || '';
+            document.getElementById('editNf').value = item.nf || '';
+            document.getElementById('editProduto').value = item.produto || '';
+            document.getElementById('editQuantidade').value = item.quantidade || 1;
+            document.getElementById('editMotivo').value = item.motivo || '';
+            document.getElementById('editDataEntrada').value = item.dataEntrada || '';
+            document.getElementById('editDataSaida').value = item.dataSaida || '';
+            document.getElementById('editDestino').value = item.destino || '';
 
             document.getElementById('editModal').classList.add('active');
         }
@@ -1036,54 +1186,65 @@
         }
 
         function saveEdit() {
-            const id = parseInt(document.getElementById('editId').value);
-            const itemIndex = history.findIndex(r => r.id === id);
+            if (isSavingEdit) return;
+            const id = parseInt(document.getElementById('editId').value, 10);
+            const itemIndex = history.findIndex(function (r) { return r.id === id; });
+            if (itemIndex === -1) return;
 
-            if (itemIndex > -1) {
-                history[itemIndex].status = document.getElementById('editStatus').value;
-                history[itemIndex].cliente = document.getElementById('editCliente').value;
-                history[itemIndex].nf = document.getElementById('editNf').value;
-                history[itemIndex].produto = document.getElementById('editProduto').value;
-                history[itemIndex].quantidade = parseInt(document.getElementById('editQuantidade').value);
-                history[itemIndex].motivo = document.getElementById('editMotivo').value;
-                history[itemIndex].dataEntrada = document.getElementById('editDataEntrada').value;
-                history[itemIndex].dataSaida = document.getElementById('editDataSaida').value;
-                history[itemIndex].destino = document.getElementById('editDestino').value;
-                history[itemIndex].atualizadoEm = new Date().toISOString();
+            isSavingEdit = true;
+            const btn = document.getElementById('btnSaveEdit');
+            btn.disabled = true;
+            btn.textContent = '⏳ Salvando...';
 
-                localStorage.setItem('donaRitaDevolucoes', JSON.stringify(history));
+            history[itemIndex].status = document.getElementById('editStatus').value;
+            history[itemIndex].cliente = document.getElementById('editCliente').value.trim();
+            history[itemIndex].nf = document.getElementById('editNf').value.trim();
+            history[itemIndex].produto = document.getElementById('editProduto').value.trim();
+            history[itemIndex].quantidade = parseInt(document.getElementById('editQuantidade').value, 10) || 0;
+            history[itemIndex].motivo = document.getElementById('editMotivo').value.trim();
+            history[itemIndex].dataEntrada = document.getElementById('editDataEntrada').value;
+            history[itemIndex].dataSaida = document.getElementById('editDataSaida').value;
+            history[itemIndex].destino = document.getElementById('editDestino').value.trim();
+            history[itemIndex].atualizadoEm = new Date().toISOString();
 
-                if (fbReady && fbDb) {
-                    fbSaveItem(history[itemIndex])
-                        .then(function () {
-                            alert('✅ Alterações salvas no Firebase!');
-                        })
-                        .catch(function (err) {
-                            alert('Alterações salvas no dispositivo, mas não no Firebase.\nCódigo: ' + (err.code || err.message));
-                        });
-                } else {
-                    alert('Alterações salvas apenas no dispositivo (Firebase não pronto).');
-                }
+            persistHistory();
 
+            const updated = history[itemIndex];
+
+            const done = function (msg, isError) {
+                isSavingEdit = false;
+                btn.disabled = false;
+                btn.textContent = 'Salvar Alterações';
+                if (msg) alert(msg);
                 closeEditModal();
                 renderHistory();
                 renderDashboard();
+            };
+
+            if (fbReady && fbDb) {
+                fbSaveItem(updated)
+                    .then(function () { done('✅ Alterações salvas no Firebase!'); })
+                    .catch(function (err) {
+                        done('Alterações salvas no dispositivo, mas não no Firebase.\nCódigo: ' + (err.code || err.message), true);
+                    });
+            } else {
+                done('Alterações salvas apenas no dispositivo (Firebase não pronto).', true);
             }
         }
 
         function renderDashboard() {
             const totalNCs = history.length;
-            const totalItens = history.reduce((acc, curr) => acc + curr.quantidade, 0);
-
-            const abertas = history.filter(i => (i.status || 'Aberta') === 'Aberta').length;
+            const totalItens = history.reduce(function (acc, curr) { return acc + (curr.quantidade || 0); }, 0);
+            const abertas = history.filter(function (i) { return (i.status || 'Aberta') === 'Aberta'; }).length;
             const resolvidas = totalNCs - abertas;
 
             const motivosCount = {};
             let motivoComum = '-';
             let maxCount = 0;
 
-            history.forEach(item => {
-                const motivo = item.motivo.trim().toLowerCase();
+            history.forEach(function (item) {
+                const motivo = (item.motivo || '').trim().toLowerCase();
+                if (!motivo) return;
                 motivosCount[motivo] = (motivosCount[motivo] || 0) + 1;
                 if (motivosCount[motivo] > maxCount) {
                     maxCount = motivosCount[motivo];
@@ -1097,13 +1258,17 @@
 
             const dadosMotivos = {}, dadosQuantidades = {}, dadosClientes = {};
 
-            history.forEach(item => {
-                dadosMotivos[item.motivo] = (dadosMotivos[item.motivo] || 0) + 1;
-                dadosQuantidades[item.motivo] = (dadosQuantidades[item.motivo] || 0) + item.quantidade;
-                dadosClientes[item.cliente] = (dadosClientes[item.cliente] || 0) + 1;
+            history.forEach(function (item) {
+                const m = item.motivo || 'Não informado';
+                dadosMotivos[m] = (dadosMotivos[m] || 0) + 1;
+                dadosQuantidades[m] = (dadosQuantidades[m] || 0) + (item.quantidade || 0);
+                const c = item.cliente || 'Não informado';
+                dadosClientes[c] = (dadosClientes[c] || 0) + 1;
             });
 
-            const sortObj = (obj) => Object.entries(obj).sort((a, b) => b[1] - a[1]);
+            const sortObj = function (obj) {
+                return Object.entries(obj).sort(function (a, b) { return b[1] - a[1]; });
+            };
 
             const motivosSorted = sortObj(dadosMotivos);
             const quantidadesSorted = sortObj(dadosQuantidades);
@@ -1118,8 +1283,11 @@
 
             chartMotivosInstance = new Chart(document.getElementById('chartMotivos').getContext('2d'), {
                 type: 'doughnut',
-                data: { labels: motivosSorted.map(item => item[0]), datasets: [{ data: motivosSorted.map(item => item[1]), backgroundColor: bgColors, borderWidth: 2, borderColor: '#FFF' }] },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, datalabels: { color: '#FFF', font: { weight: 'bold', size: 12 }, formatter: (value) => value } } },
+                data: {
+                    labels: motivosSorted.map(function (item) { return item[0]; }),
+                    datasets: [{ data: motivosSorted.map(function (item) { return item[1]; }), backgroundColor: bgColors, borderWidth: 2, borderColor: '#FFF' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' }, datalabels: { color: '#FFF', font: { weight: 'bold', size: 12 }, formatter: function (value) { return value; } } } },
                 plugins: [ChartDataLabels]
             });
 
@@ -1132,72 +1300,72 @@
 
             chartQuantidadeInstance = new Chart(document.getElementById('chartQuantidade').getContext('2d'), {
                 type: 'bar',
-                data: { labels: quantidadesSorted.map(item => item[0]), datasets: [{ label: 'Quantidade', data: quantidadesSorted.map(item => item[1]), backgroundColor: '#4A2B8F', borderRadius: 4 }] },
+                data: { labels: quantidadesSorted.map(function (item) { return item[0]; }), datasets: [{ label: 'Quantidade', data: quantidadesSorted.map(function (item) { return item[1]; }), backgroundColor: '#4A2B8F', borderRadius: 4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'end', color: '#2C1A61', font: { weight: 'bold', size: 12 } } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } },
                 plugins: [ChartDataLabels]
             });
 
             chartClientesInstance = new Chart(document.getElementById('chartClientes').getContext('2d'), {
                 type: 'bar',
-                data: { labels: clientesSorted.map(item => item[0]), datasets: [{ label: 'Devoluções', data: clientesSorted.map(item => item[1]), backgroundColor: '#9E7EF8', borderRadius: 4 }] },
+                data: { labels: clientesSorted.map(function (item) { return item[0]; }), datasets: [{ label: 'Devoluções', data: clientesSorted.map(function (item) { return item[1]; }), backgroundColor: '#9E7EF8', borderRadius: 4 }] },
                 options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, datalabels: { anchor: 'end', align: 'end', color: '#2C1A61', font: { weight: 'bold', size: 12 } } }, scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } } } },
                 plugins: [ChartDataLabels]
             });
         }
 
         function printReceipt(id) {
-            const item = history.find(r => r.id === id);
+            const item = history.find(function (r) { return r.id === id; });
             if (!item) return;
 
-            document.getElementById('print-date').innerText = `Data de Emissão: ${formatDate(new Date().toISOString().split('T')[0])}`;
-            document.getElementById('print-cliente').innerText = item.cliente;
-            document.getElementById('print-nf').innerText = item.nf;
-            document.getElementById('print-produto').innerText = item.produto;
-            document.getElementById('print-quantidade').innerText = item.quantidade;
-            document.getElementById('print-motivo').innerText = item.motivo;
+            document.getElementById('print-date').innerText = 'Data de Emissão: ' + formatDate(new Date().toISOString().split('T')[0]);
+            document.getElementById('print-cliente').innerText = item.cliente || '-';
+            document.getElementById('print-nf').innerText = item.nf || '-';
+            document.getElementById('print-produto').innerText = item.produto || '-';
+            document.getElementById('print-quantidade').innerText = item.quantidade || 0;
+            document.getElementById('print-motivo').innerText = item.motivo || '-';
             document.getElementById('print-dataEntrada').innerText = formatDate(item.dataEntrada);
             document.getElementById('print-dataSaida').innerText = formatDate(item.dataSaida);
-            document.getElementById('print-destino').innerText = item.destino;
+            document.getElementById('print-destino').innerText = item.destino || '-';
 
             document.getElementById('dashboard-print-area').classList.remove('print-active');
             document.getElementById('label-print-area').classList.remove('print-active');
             document.getElementById('print-area').classList.add('print-active');
 
             window.print();
-            setTimeout(() => document.getElementById('print-area').classList.remove('print-active'), 1000);
+            setTimeout(function () { document.getElementById('print-area').classList.remove('print-active'); }, 1000);
         }
 
         function buildQRText(item) {
             const status = item.status || 'Aberta';
             return [
                 'DEVOLUCAO #' + item.id,
-                'Cliente: ' + item.cliente,
-                'NF: ' + item.nf,
+                'Cliente: ' + (item.cliente || ''),
+                'NF: ' + (item.nf || ''),
                 'Produto: ' + (item.produto || '').substring(0, 140),
-                'Qtd: ' + item.quantidade,
-                'Motivo: ' + item.motivo,
+                'Qtd: ' + (item.quantidade || 0),
+                'Motivo: ' + (item.motivo || ''),
                 'Entrada: ' + formatDate(item.dataEntrada),
                 'Saida: ' + formatDate(item.dataSaida),
-                'Destino: ' + item.destino,
+                'Destino: ' + (item.destino || ''),
                 'Status: ' + status
             ].join('\n');
         }
 
         async function printLabel(id) {
-            const item = history.find(r => r.id === id);
+            const item = history.find(function (r) { return r.id === id; });
             if (!item) return;
 
             document.getElementById('label-emissao').innerText = 'Emitido em: ' + formatDate(new Date().toISOString().split('T')[0]);
             document.getElementById('label-id').innerText = 'Registro #' + item.id;
-            document.getElementById('label-cliente').innerText = item.cliente;
-            document.getElementById('label-nf').innerText = item.nf;
-            document.getElementById('label-quantidade').innerText = item.quantidade;
+            document.getElementById('label-cliente').innerText = item.cliente || '-';
+            document.getElementById('label-nf').innerText = item.nf || '-';
+            document.getElementById('label-quantidade').innerText = item.quantidade || 0;
             document.getElementById('label-status').innerText = item.status || 'Aberta';
             document.getElementById('label-dataEntrada').innerText = formatDate(item.dataEntrada);
             document.getElementById('label-dataSaida').innerText = formatDate(item.dataSaida);
-            document.getElementById('label-produto').innerText = item.produto;
-            document.getElementById('label-destino').innerText = item.destino;
-            document.getElementById('label-motivo').innerText = item.motivo;
+            document.getElementById('label-produto').innerText = item.produto || '-';
+            document.getElementById('label-destino').innerText = item.destino || '-';
+            document.getElementById('label-motivo').innerText = item.motivo || '-';
 
             const fotoWrap = document.getElementById('label-photo-wrap');
             const fotoImg = document.getElementById('label-foto');
@@ -1227,9 +1395,9 @@
             document.getElementById('dashboard-print-area').classList.remove('print-active');
             document.getElementById('label-print-area').classList.add('print-active');
 
-            setTimeout(() => {
+            setTimeout(function () {
                 window.print();
-                setTimeout(() => document.getElementById('label-print-area').classList.remove('print-active'), 1000);
+                setTimeout(function () { document.getElementById('label-print-area').classList.remove('print-active'); }, 1000);
             }, 400);
         }
 
@@ -1237,9 +1405,9 @@
             document.getElementById('print-dash-date').innerText = formatDate(new Date().toISOString().split('T')[0]);
 
             const total = history.length;
-            const abertas = history.filter(i => (i.status || 'Aberta') === 'Aberta').length;
+            const abertas = history.filter(function (i) { return (i.status || 'Aberta') === 'Aberta'; }).length;
             const resolvidas = total - abertas;
-            const totalItens = history.reduce((acc, curr) => acc + curr.quantidade, 0);
+            const totalItens = history.reduce(function (acc, curr) { return acc + (curr.quantidade || 0); }, 0);
 
             document.getElementById('print-kpi-total').innerText = total;
             document.getElementById('print-kpi-abertas').innerText = abertas;
@@ -1258,25 +1426,27 @@
             const tbody = document.getElementById('print-table-body');
             tbody.innerHTML = '';
 
-            const sortedHistory = [...history].sort((a, b) => new Date(b.dataEntrada) - new Date(a.dataEntrada));
+            const sortedHistory = history.slice().sort(function (a, b) {
+                return new Date(b.dataEntrada || 0) - new Date(a.dataEntrada || 0);
+            });
 
             if (sortedHistory.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="9" style="text-align: center;">Nenhum registro encontrado.</td></tr>';
             } else {
-                sortedHistory.forEach(item => {
+                sortedHistory.forEach(function (item) {
                     const status = item.status || 'Aberta';
+                    const produto = item.produto || '';
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${item.motivo}</td>
-                        <td>${item.cliente}</td>
-                        <td>${item.nf}</td>
-                        <td>${item.produto.substring(0, 20)}${item.produto.length > 20 ? '...' : ''}</td>
-                        <td>${item.quantidade}</td>
-                        <td>${formatDate(item.dataEntrada)}</td>
-                        <td>${formatDate(item.dataSaida)}</td>
-                        <td>${status}</td>
-                        <td>${item.destino}</td>
-                    `;
+                    tr.innerHTML =
+                        '<td>' + escapeHtml(item.motivo || '') + '</td>' +
+                        '<td>' + escapeHtml(item.cliente || '') + '</td>' +
+                        '<td>' + escapeHtml(item.nf || '') + '</td>' +
+                        '<td>' + escapeHtml(produto.substring(0, 20) + (produto.length > 20 ? '...' : '')) + '</td>' +
+                        '<td>' + (item.quantidade || 0) + '</td>' +
+                        '<td>' + formatDate(item.dataEntrada) + '</td>' +
+                        '<td>' + formatDate(item.dataSaida) + '</td>' +
+                        '<td>' + status + '</td>' +
+                        '<td>' + escapeHtml(item.destino || '') + '</td>';
                     tbody.appendChild(tr);
                 });
             }
@@ -1284,16 +1454,16 @@
             let imagesLoaded = 0;
             const totalImages = 2;
 
-            const onImageLoad = () => {
+            const onImageLoad = function () {
                 imagesLoaded++;
                 if (imagesLoaded === totalImages) {
                     document.getElementById('print-area').classList.remove('print-active');
                     document.getElementById('label-print-area').classList.remove('print-active');
                     document.getElementById('dashboard-print-area').classList.add('print-active');
 
-                    setTimeout(() => {
+                    setTimeout(function () {
                         window.print();
-                        setTimeout(() => document.getElementById('dashboard-print-area').classList.remove('print-active'), 1000);
+                        setTimeout(function () { document.getElementById('dashboard-print-area').classList.remove('print-active'); }, 1000);
                     }, 300);
                 }
             };
@@ -1307,6 +1477,7 @@
 
         function getCanvasImage(canvasId) {
             const canvas = document.getElementById(canvasId);
+            if (!canvas) return '';
             const tempCanvas = document.createElement('canvas');
             const scale = 2;
             tempCanvas.width = canvas.width * scale;
@@ -1321,8 +1492,9 @@
 
         function formatDate(dateString) {
             if (!dateString) return '-';
-            const [year, month, day] = dateString.split('-');
-            return `${day}/${month}/${year}`;
+            const parts = dateString.split('-');
+            if (parts.length !== 3) return dateString;
+            return parts[2] + '/' + parts[1] + '/' + parts[0];
         }
     </script>
 </body>
